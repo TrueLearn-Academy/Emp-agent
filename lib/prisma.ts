@@ -43,25 +43,26 @@ export function getPrisma() {
     
     // Convert direct connection to pooler connection for Supabase
     if (url.hostname.includes('supabase.co')) {
-      // Extract project ref from hostname (e.g., db.xxxxx.supabase.co -> xxxxx)
-      const projectRef = url.hostname.split('.')[1]
+      // Extract project ref from hostname (e.g., db.kgqywlbmodtojakkuhaa.supabase.co -> kgqywlbmodtojakkuhaa)
+      const parts = url.hostname.split('.')
+      const projectRef = parts.length > 2 ? parts[1] : parts[0].replace('db.', '')
       
-      // Use Transaction Mode pooler (port 6543) instead of direct connection (5432)
-      // Format: postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
-      url.hostname = `aws-0-ap-south-1.pooler.supabase.com`
-      url.port = '6543'
+      console.log('📍 Project ref:', projectRef)
       
-      // Update username to include project ref
-      if (!url.username.includes('.')) {
-        url.username = `postgres.${projectRef}`
-      }
+      // For Supabase Transaction pooler:
+      // Use format: postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+      const password = url.password
       
-      // Add pgbouncer mode
-      url.searchParams.set('pgbouncer', 'true')
-      url.searchParams.set('connection_limit', '1')
+      // Build the pooler connection string
+      const poolerUrl = new URL(databaseUrl)
+      poolerUrl.username = `postgres.${projectRef}`
+      poolerUrl.hostname = `aws-0-ap-south-1.pooler.supabase.com`
+      poolerUrl.port = '6543'
+      poolerUrl.searchParams.set('pgbouncer', 'true')
+      poolerUrl.searchParams.set('connection_limit', '1')
       
-      connectionUrl = url.toString()
-      console.log('🔄 Converted to Supabase pooler:', connectionUrl.substring(0, 50) + '...')
+      connectionUrl = poolerUrl.toString()
+      console.log('🔄 Using Supabase pooler with username:', poolerUrl.username)
     } else {
       // For non-Supabase databases, just add SSL
       const url = new URL(databaseUrl)
