@@ -74,7 +74,7 @@ export default function PersonalDetailsForm({ employeeId, data, onNext, onUpdate
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="fatherName">Father's Name *</Label>
+          <Label htmlFor="fatherName">Father&apos;s Name *</Label>
           <Input id="fatherName" {...register('fatherName')} />
           {errors.fatherName && (
             <p className="text-sm text-red-600">{errors.fatherName.message}</p>
@@ -82,7 +82,7 @@ export default function PersonalDetailsForm({ employeeId, data, onNext, onUpdate
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="motherName">Mother's Name *</Label>
+          <Label htmlFor="motherName">Mother&apos;s Name *</Label>
           <Input id="motherName" {...register('motherName')} />
           {errors.motherName && (
             <p className="text-sm text-red-600">{errors.motherName.message}</p>
