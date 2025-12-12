@@ -2,6 +2,8 @@ import { getEmployeeData } from '@/app/actions/employee'
 import { redirect } from 'next/navigation'
 import MultiStepForm from '@/components/forms/MultiStepForm'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EmployeeStepsPage({
   params,
 }: {
