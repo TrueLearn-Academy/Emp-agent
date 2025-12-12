@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Employee {
+  id        String   @id @default(cuid())
+  employeeId String  @unique
+  
+  // Personal Details
+  fullName      String
+  fatherName    String
+  motherName    String
+  phone         String
+  whatsapp      String?
+  email         String
+  dob           DateTime
+  dateOfJoining DateTime?
+  gender        String
+  bloodGroup    String?
+  
+  // Address Details
+  permanentAddress String
+  presentAddress   String
+  state           String
+  district        String
+  pincode         String
+  
+  // Government IDs
+  aadhaar String
+  pan     String
+  uan     String?
+  esic    String?
+  
+  // Education
+  education_10     String? @db.Text
+  education_12     String? @db.Text
+  education_degree String? @db.Text
+  
+  // Bank Details
+  bankAccountName String
+  bankName        String
+  branchName      String
+  accountNumber   String
+  ifsc            String
+  
+  // Status
+  status    EmployeeStatus @default(DRAFT)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  documents   EmployeeDocuments?
+  auditLogs   AuditLog[]
+  
+  @@index([status])
+  @@index([employeeId])
+  @@index([email])
+}
+
+model EmployeeDocuments {
+  id         String   @id @default(cuid())
+  employeeId String   @unique
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  aadhaarFile           String?
+  panFile               String?
+  passbookFile          String?
+  tenthMarksFile        String?
+  twelfthMarksFile      String?
+  degreeMarksFile       String?
+  degreeCertificateFile String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(ADMIN)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  auditLogs AuditLog[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  admin      AdminUser @relation(fields: [adminId], references: [id])
+  
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  
+  action     String
+  details    String? @db.Text
+  
+  timestamp  DateTime @default(now())
+  
+  @@index([adminId])
+  @@index([employeeId])
+  @@index([timestamp])
+}
+
+enum EmployeeStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+}
