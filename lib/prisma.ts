@@ -34,10 +34,23 @@ export function getPrisma() {
 
   console.log('✅ Initializing Prisma Client with DATABASE_URL:', databaseUrl.substring(0, 35) + '...')
 
+  // Add connection pooling and timeout settings for Vercel serverless
+  const url = new URL(databaseUrl)
+  
+  // Add SSL mode if not already present
+  if (!url.searchParams.has('sslmode')) {
+    url.searchParams.set('sslmode', 'require')
+  }
+  
+  // Add connection limit for serverless
+  if (!url.searchParams.has('connection_limit')) {
+    url.searchParams.set('connection_limit', '1')
+  }
+
   prismaInstance = new PrismaClient({
     datasources: {
       db: {
-        url: databaseUrl,
+        url: url.toString(),
       },
     },
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
