@@ -3,6 +3,8 @@ import { getAdminSession } from '@/app/actions/admin'
 import { prisma } from '@/lib/prisma'
 import ExcelJS from 'exceljs'
 
+export const runtime = 'nodejs'
+
 export async function GET() {
   try {
     // Check admin authentication

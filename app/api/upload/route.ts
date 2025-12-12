@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -24,6 +26,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Convert File to Buffer for upload
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
     // Upload to Supabase Storage
     const fileExt = file.name.split('.').pop()
     const fileName = `${fieldName}_${Date.now()}.${fileExt}`
@@ -31,7 +37,10 @@ export async function POST(request: NextRequest) {
 
     const { error: uploadError } = await supabase.storage
       .from('employee-documents')
-      .upload(filePath, file)
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false
+      })
 
     if (uploadError) {
       console.error('Upload error:', uploadError)
