@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getAdminSession } from '@/app/actions/admin'
 import { prisma } from '@/lib/prisma'
-import ExcelJS from 'exceljs'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET() {
   try {
@@ -23,6 +23,9 @@ export async function GET() {
         createdAt: 'desc',
       },
     })
+
+    // Dynamic import ExcelJS to avoid build issues
+    const ExcelJS = (await import('exceljs')).default
 
     // Create workbook
     const workbook = new ExcelJS.Workbook()
