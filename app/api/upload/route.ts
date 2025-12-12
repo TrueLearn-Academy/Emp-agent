@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
