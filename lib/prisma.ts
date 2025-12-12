@@ -25,14 +25,17 @@ export function getPrisma() {
       nodeEnv: process.env.NODE_ENV,
       vercelEnv: process.env.VERCEL_ENV,
       vercel: process.env.VERCEL,
+      railway: process.env.RAILWAY_ENVIRONMENT,
       availableEnvVars: availableVars,
-      allKeys: Object.keys(process.env).slice(0, 20)
+      allKeys: Object.keys(process.env).slice(0, 30)
     })
     
-    throw new Error('DATABASE_URL environment variable is not set. Please configure it in Vercel Project Settings > Environment Variables')
+    throw new Error('DATABASE_URL environment variable is not set. Please configure it in Railway or Vercel environment variables.')
   }
 
-  console.log('✅ Initializing Prisma Client with DATABASE_URL:', databaseUrl.substring(0, 35) + '...')
+  console.log('✅ Initializing Prisma Client')
+  console.log('🔍 Platform:', process.env.RAILWAY_ENVIRONMENT ? 'Railway' : (process.env.VERCEL ? 'Vercel' : 'Local'))
+  console.log('🔗 Database URL:', databaseUrl.substring(0, 40) + '...')
 
   // For Railway or other platforms, use the DATABASE_URL as-is
   // Railway's DATABASE_URL is already optimized for their platform
