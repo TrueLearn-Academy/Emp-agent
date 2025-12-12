@@ -8,7 +8,15 @@ import { revalidatePath } from 'next/cache'
 
 export async function createDraftEmployee() {
   try {
+    console.log('Creating draft employee...')
+    console.log('Environment check:', {
+      hasDbUrl: !!process.env.DATABASE_URL,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV
+    })
+    
     const employeeId = generateEmployeeId()
+    console.log('Generated employee ID:', employeeId)
     
     const employee = await prisma.employee.create({
       data: {
@@ -35,17 +43,20 @@ export async function createDraftEmployee() {
         status: 'DRAFT',
       },
     })
+    console.log('Employee created:', employee.id)
 
     await prisma.employeeDocuments.create({
       data: {
         employeeId: employee.id,
       },
     })
+    console.log('Documents record created')
 
     return { success: true, employeeId: employee.id }
   } catch (error) {
     console.error('Error creating draft:', error)
-    return { success: false, error: 'Failed to create draft' }
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create draft'
+    return { success: false, error: errorMessage }
   }
 }
 

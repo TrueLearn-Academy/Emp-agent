@@ -6,19 +6,22 @@ const globalForPrisma = globalThis as unknown as {
 
 // Use placeholder URL during build if DATABASE_URL is not set
 const getDatabaseUrl = () => {
+  // At runtime, DATABASE_URL must be set
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL
   }
   
-  // Return a valid placeholder URL during build to prevent errors
-  // This will never be used in production runtime since env vars are set
-  if (process.env.VERCEL_ENV === undefined) {
-    // Local development - use real URL from .env.local
-    return process.env.DATABASE_URL || ''
+  // Only use placeholder during build time (when NODE_ENV is not production yet)
+  // In Vercel, during build, VERCEL_ENV exists but DATABASE_URL might not
+  const isBuildTime = process.env.VERCEL && !process.env.DATABASE_URL
+  
+  if (isBuildTime) {
+    // Vercel build time - use placeholder
+    return 'postgresql://placeholder:placeholder@placeholder:5432/placeholder'
   }
   
-  // Vercel build time - use placeholder
-  return 'postgresql://placeholder:placeholder@placeholder:5432/placeholder'
+  // This should not happen in production runtime
+  throw new Error('DATABASE_URL is not set in production environment!')
 }
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
