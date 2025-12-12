@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import ExportButton from '@/components/admin/ExportButton'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminDashboardPage() {
   const session = await getAdminSession()
   

@@ -8,6 +8,8 @@ import Link from 'next/link'
 import EmployeeActions from '@/components/admin/EmployeeActions'
 import Image from 'next/image'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EmployeeDetailPage({
   params,
 }: {
