@@ -45,9 +45,10 @@ export const governmentIdsSchema = z.object({
 
 // Step 4: Education Details
 export const educationDetailsSchema = z.object({
-  education_10: z.string().optional(),
-  education_12: z.string().optional(),
-  education_degree: z.string().optional(),
+  highestQualification: z.string().optional(),
+  institution: z.string().optional(),
+  yearOfPassing: z.string().optional(),
+  percentage: z.string().optional(),
 })
 
 // Step 5: Bank Details

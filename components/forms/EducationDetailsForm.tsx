@@ -26,9 +26,10 @@ export default function EducationDetailsForm({ employeeId, data, onNext, onUpdat
   } = useForm<EducationDetailsType>({
     resolver: zodResolver(educationDetailsSchema),
     defaultValues: {
-      education_10: data?.education_10 as string || '',
-      education_12: data?.education_12 as string || '',
-      education_degree: data?.education_degree as string || '',
+      highestQualification: data?.highestQualification as string || '',
+      institution: data?.institution as string || '',
+      yearOfPassing: data?.yearOfPassing as string || '',
+      percentage: data?.percentage as string || '',
     },
   })
 
@@ -55,26 +56,34 @@ export default function EducationDetailsForm({ employeeId, data, onNext, onUpdat
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="education_10">10th Standard Details</Label>
-          <Input id="education_10" {...register('education_10')} placeholder="School Name, Board, Year, Percentage" />
-          {errors.education_10 && (
-            <p className="text-sm text-red-600">{errors.education_10.message}</p>
+          <Label htmlFor="highestQualification">Highest Qualification</Label>
+          <Input id="highestQualification" {...register('highestQualification')} placeholder="e.g., B.Tech, MBA, M.Sc, etc." />
+          {errors.highestQualification && (
+            <p className="text-sm text-red-600">{errors.highestQualification.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="education_12">12th Standard Details</Label>
-          <Input id="education_12" {...register('education_12')} placeholder="School Name, Board, Year, Percentage" />
-          {errors.education_12 && (
-            <p className="text-sm text-red-600">{errors.education_12.message}</p>
+          <Label htmlFor="institution">Institution Name</Label>
+          <Input id="institution" {...register('institution')} placeholder="Name of university/college/school" />
+          {errors.institution && (
+            <p className="text-sm text-red-600">{errors.institution.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="education_degree">Degree Details</Label>
-          <Input id="education_degree" {...register('education_degree')} placeholder="College, Degree, Year, Percentage" />
-          {errors.education_degree && (
-            <p className="text-sm text-red-600">{errors.education_degree.message}</p>
+          <Label htmlFor="yearOfPassing">Year of Passing</Label>
+          <Input id="yearOfPassing" {...register('yearOfPassing')} placeholder="e.g., 2020" />
+          {errors.yearOfPassing && (
+            <p className="text-sm text-red-600">{errors.yearOfPassing.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="percentage">Percentage/CGPA</Label>
+          <Input id="percentage" {...register('percentage')} placeholder="e.g., 85% or 8.5 CGPA" />
+          {errors.percentage && (
+            <p className="text-sm text-red-600">{errors.percentage.message}</p>
           )}
         </div>
       </div>

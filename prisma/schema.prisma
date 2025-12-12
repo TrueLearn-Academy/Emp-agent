@@ -38,9 +38,10 @@ model Employee {
   esic    String?
   
   // Education
-  education_10     String? @db.Text
-  education_12     String? @db.Text
-  education_degree String? @db.Text
+  highestQualification String?
+  institution          String?
+  yearOfPassing        String?
+  percentage           String?
   
   // Bank Details
   bankAccountName String

@@ -9,10 +9,11 @@ export interface SessionData {
   userId: string
   email: string
   role: string
+  [key: string]: string
 }
 
 export async function createSession(data: SessionData): Promise<string> {
-  const token = await new SignJWT(data)
+  const token = await new SignJWT(data as Record<string, string>)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
