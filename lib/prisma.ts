@@ -34,23 +34,49 @@ export function getPrisma() {
 
   console.log('✅ Initializing Prisma Client with DATABASE_URL:', databaseUrl.substring(0, 35) + '...')
 
-  // Add connection pooling and timeout settings for Vercel serverless
-  const url = new URL(databaseUrl)
+  // Parse and modify the connection URL for serverless environments
+  let connectionUrl = databaseUrl
   
-  // Add SSL mode if not already present
-  if (!url.searchParams.has('sslmode')) {
-    url.searchParams.set('sslmode', 'require')
-  }
-  
-  // Add connection limit for serverless
-  if (!url.searchParams.has('connection_limit')) {
-    url.searchParams.set('connection_limit', '1')
+  // In production/Vercel, use Supabase connection pooler for better reliability
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    const url = new URL(databaseUrl)
+    
+    // Convert direct connection to pooler connection for Supabase
+    if (url.hostname.includes('supabase.co')) {
+      // Extract project ref from hostname (e.g., db.xxxxx.supabase.co -> xxxxx)
+      const projectRef = url.hostname.split('.')[1]
+      
+      // Use Transaction Mode pooler (port 6543) instead of direct connection (5432)
+      // Format: postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+      url.hostname = `aws-0-ap-south-1.pooler.supabase.com`
+      url.port = '6543'
+      
+      // Update username to include project ref
+      if (!url.username.includes('.')) {
+        url.username = `postgres.${projectRef}`
+      }
+      
+      // Add pgbouncer mode
+      url.searchParams.set('pgbouncer', 'true')
+      url.searchParams.set('connection_limit', '1')
+      
+      connectionUrl = url.toString()
+      console.log('🔄 Converted to Supabase pooler:', connectionUrl.substring(0, 50) + '...')
+    } else {
+      // For non-Supabase databases, just add SSL
+      const url = new URL(databaseUrl)
+      if (!url.searchParams.has('sslmode')) {
+        url.searchParams.set('sslmode', 'require')
+      }
+      url.searchParams.set('connection_limit', '1')
+      connectionUrl = url.toString()
+    }
   }
 
   prismaInstance = new PrismaClient({
     datasources: {
       db: {
-        url: url.toString(),
+        url: connectionUrl,
       },
     },
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
