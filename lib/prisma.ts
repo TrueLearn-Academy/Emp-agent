@@ -34,50 +34,19 @@ export function getPrisma() {
 
   console.log('✅ Initializing Prisma Client with DATABASE_URL:', databaseUrl.substring(0, 35) + '...')
 
-  // Parse and modify the connection URL for serverless environments
-  let connectionUrl = databaseUrl
+  // For Railway or other platforms, use the DATABASE_URL as-is
+  // Railway's DATABASE_URL is already optimized for their platform
+  const url = new URL(databaseUrl)
   
-  // In production/Vercel, use Supabase connection pooler for better reliability
-  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-    const url = new URL(databaseUrl)
-    
-    // Convert direct connection to pooler connection for Supabase
-    if (url.hostname.includes('supabase.co')) {
-      // Extract project ref from hostname (e.g., db.kgqywlbmodtojakkuhaa.supabase.co -> kgqywlbmodtojakkuhaa)
-      const parts = url.hostname.split('.')
-      const projectRef = parts.length > 2 ? parts[1] : parts[0].replace('db.', '')
-      
-      console.log('📍 Project ref:', projectRef)
-      
-      // For Supabase Transaction pooler:
-      // Use format: postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
-      const password = url.password
-      
-      // Build the pooler connection string
-      const poolerUrl = new URL(databaseUrl)
-      poolerUrl.username = `postgres.${projectRef}`
-      poolerUrl.hostname = `aws-0-ap-south-1.pooler.supabase.com`
-      poolerUrl.port = '6543'
-      poolerUrl.searchParams.set('pgbouncer', 'true')
-      poolerUrl.searchParams.set('connection_limit', '1')
-      
-      connectionUrl = poolerUrl.toString()
-      console.log('🔄 Using Supabase pooler with username:', poolerUrl.username)
-    } else {
-      // For non-Supabase databases, just add SSL
-      const url = new URL(databaseUrl)
-      if (!url.searchParams.has('sslmode')) {
-        url.searchParams.set('sslmode', 'require')
-      }
-      url.searchParams.set('connection_limit', '1')
-      connectionUrl = url.toString()
-    }
+  // Only add SSL if not already present
+  if (!url.searchParams.has('sslmode')) {
+    url.searchParams.set('sslmode', 'require')
   }
 
   prismaInstance = new PrismaClient({
     datasources: {
       db: {
-        url: connectionUrl,
+        url: url.toString(),
       },
     },
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
