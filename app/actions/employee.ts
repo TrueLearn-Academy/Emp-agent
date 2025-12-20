@@ -9,17 +9,10 @@ import { revalidatePath } from 'next/cache'
 export async function createDraftEmployee() {
   try {
     console.log('🚀 Creating draft employee...')
-    console.log('📊 Environment check:', {
-      hasDbUrl: !!process.env.DATABASE_URL,
-      nodeEnv: process.env.NODE_ENV,
-      platform: process.env.RAILWAY_ENVIRONMENT ? 'Railway' : (process.env.VERCEL ? 'Vercel' : 'Local'),
-      dbUrlStart: process.env.DATABASE_URL?.substring(0, 30)
-    })
     
     const employeeId = generateEmployeeId()
     console.log('🆔 Generated employee ID:', employeeId)
     
-    console.log('💾 Attempting database connection...')
     const employee = await prisma.employee.create({
       data: {
         employeeId,
@@ -57,18 +50,7 @@ export async function createDraftEmployee() {
     return { success: true, employeeId: employee.id }
   } catch (error) {
     console.error('❌ Error creating draft:', error)
-    
-    // Provide more detailed error message
-    let errorMessage = 'Failed to create draft'
-    if (error instanceof Error) {
-      errorMessage = error.message
-      
-      // Add helpful context for common errors
-      if (errorMessage.includes("Can't reach database server")) {
-        errorMessage = `Database connection failed. Please check: 1) DATABASE_URL is set in Railway variables, 2) Database server is running, 3) Firewall allows connections. Original error: ${errorMessage}`
-      }
-    }
-    
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create draft'
     return { success: false, error: errorMessage }
   }
 }
